@@ -83,15 +83,20 @@ def creer_section(cur, doc):
                                         width=NoEscape(r'0.45\linewidth')
                                         )
 
-def dessiner(chemin):
-    instr = """
-        \\begin{figure}%\n
-        \\includegraphics[width=0.45\linewidth]{photos/18.02.2018/male/agile/AgileMale1.png}%\n
-        \\end{figure}\n
-    """
-
 
 if __name__ == '__main__':
     # Basic document
-    with open("template.tex", "r") as fichier:
-        template = fichier.read()
+    doc = Document("GrenouilleBrune")
+
+    doc.preamble.append(Command('title', 'Awesome Title'))
+    doc.preamble.append(Command('author', 'Lucas Boutarfa'))
+    doc.preamble.append(Command('date', NoEscape(r'\today')))
+    doc.append(NoEscape(r'\maketitle'))
+
+    cur = creer_donnees()
+    creer_section(cur, doc)
+
+    doc.create(Section("une autre section"))
+    doc.append("plus de texte")
+    doc.generate_pdf(clean_tex=False)
+    doc.generate_tex()
