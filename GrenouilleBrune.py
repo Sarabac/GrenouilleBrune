@@ -66,29 +66,31 @@ def creer_section(cur, doc):
                     }):
                         date = date[0]
                         print(date)
-                        with doc.create(Subsubsection(date.encode().upper())):
-                            for chemin in cur.execute(select_photo, {
-                                'espece': espece,
-                                'sexe': sexe,
-                                'date': date
-                            }):
-                                chemin = chemin[0]
-                                print(chemin)
+                        with doc.create(Figure(
+                            width=NoEscape(r'\linewidth'),
+                            position="h!"
+                        )) as frog:
+                            with doc.create(Subsubsection(date.encode().upper())):
+                                for chemin in cur.execute(select_photo, {
+                                    'espece': espece,
+                                    'sexe': sexe,
+                                    'date': date
+                                }):
+                                    chemin = chemin[0]
+                                    print(chemin)
 
-                                with doc.create(
-                                    Figure(width=NoEscape(r'\linewidth'))
-                                ) as frog:
                                     frog.add_image(
                                         chemin,
                                         width=NoEscape(r'0.45\linewidth')
                                         )
+                        doc.append(Command("clearpage"))
 
 
 if __name__ == '__main__':
     # Basic document
     doc = Document("GrenouilleBrune")
 
-    doc.preamble.append(Command('title', 'Awesome Title'))
+    doc.preamble.append(Command('title', 'Catalogue des grenouilles Brunes'))
     doc.preamble.append(Command('author', 'Lucas Boutarfa'))
     doc.preamble.append(Command('date', NoEscape(r'\today')))
     doc.append(NoEscape(r'\maketitle'))
@@ -96,7 +98,5 @@ if __name__ == '__main__':
     cur = creer_donnees()
     creer_section(cur, doc)
 
-    doc.create(Section("une autre section"))
-    doc.append("plus de texte")
     doc.generate_pdf(clean_tex=False)
     doc.generate_tex()
