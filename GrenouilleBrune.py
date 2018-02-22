@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from pylatex import Document, Section, Subsection, Subsubsection, Command, Figure
 from pylatex.utils import NoEscape
+from pylatex.package import Package
 import sqlite3
 import os
 table = """
@@ -50,9 +51,6 @@ def creer_donnees():
                     })
     conn.commit()
     return cur
-#f = cur.execute("SELECT * FROM Photo")
-#d = f.fetchone()
-#d[1].encode()
 
 
 def creer_section(cur, doc):
@@ -89,14 +87,20 @@ def creer_section(cur, doc):
 if __name__ == '__main__':
     # Basic document
     doc = Document("GrenouilleBrune")
-
+#    doc.append(NoEscape(r"""\usepackage[francais]{babel}"""))
+    doc.packages.append(Package('babel', 'francais'))
+    doc.packages.append(Package('geometry', 'left=1cm, right=1cm'))
     doc.preamble.append(Command('title', 'Catalogue des grenouilles Brunes'))
     doc.preamble.append(Command('author', 'Lucas Boutarfa'))
     doc.preamble.append(Command('date', NoEscape(r'\today')))
     doc.append(NoEscape(r'\maketitle'))
+    doc.append(Command('tableofcontents'))
+    doc.append(Command("clearpage"))
 
     cur = creer_donnees()
     creer_section(cur, doc)
+
+
 
     doc.generate_pdf(clean_tex=False)
     doc.generate_tex()
