@@ -69,19 +69,25 @@ def creer_section(cur, doc):
                             position="h!"
                         )) as frog:
                             with doc.create(Subsubsection(date.encode().upper())):
-                                for chemin in cur.execute(select_photo, {
-                                    'espece': espece,
-                                    'sexe': sexe,
-                                    'date': date
-                                }):
-                                    chemin = chemin[0]
-                                    print(chemin)
+                                dessiner(cur, doc, frog, espece, sexe, date)
+                doc.append(Command("clearpage"))
 
-                                    frog.add_image(
-                                        chemin,
-                                        width=NoEscape(r'0.45\linewidth')
-                                        )
-                        doc.append(Command("clearpage"))
+
+def dessiner(cur, doc, frog, espece, sexe, date):
+    i = 0
+    for chemin in cur.execute(select_photo, {
+        'espece': espece,
+        'sexe': sexe,
+        'date': date
+    }):
+        i += 1
+        chemin = chemin[0]
+        print(chemin)
+        frog.add_image(chemin, width=NoEscape(r'0.40\linewidth'))
+        frog.append(Command('hspace', '0.5cm'))
+        frog.append(Command('vspace', '0.2cm'))
+        if i % 2 == 0:
+            frog.append(Command("newline"))
 
 
 if __name__ == '__main__':
@@ -89,6 +95,7 @@ if __name__ == '__main__':
     doc = Document("GrenouilleBrune")
 #    doc.append(NoEscape(r"""\usepackage[francais]{babel}"""))
     doc.packages.append(Package('babel', 'francais'))
+    doc.packages.append(Package('fancyhdr'))
     doc.packages.append(Package('geometry', 'left=1cm, right=1cm'))
     doc.preamble.append(Command('title', 'Catalogue des grenouilles Brunes'))
     doc.preamble.append(Command('author', 'Lucas Boutarfa'))
@@ -96,6 +103,7 @@ if __name__ == '__main__':
     doc.append(NoEscape(r'\maketitle'))
     doc.append(Command('tableofcontents'))
     doc.append(Command("clearpage"))
+    doc.append(Command('pagestyle', 'headings'))
 
     cur = creer_donnees()
     creer_section(cur, doc)
